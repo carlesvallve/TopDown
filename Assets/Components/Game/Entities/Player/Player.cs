@@ -19,9 +19,15 @@ public class Player : Entity {
 		img.sortingOrder = grid.height - y + 1;
 	}
 
+	private int lastX = -1;
+	private int lastY = -1;
 
 	public override IEnumerator MoveToCoords(int x, int y, float duration) {
 		if (moving) { yield break; }
+
+		if (x == this.x && y == this.y) {
+			yield break;
+		}
 
 		grid.SetEntity(this.x, this.y, null);
 		moving = true;
@@ -29,6 +35,8 @@ public class Player : Entity {
 		float ratio = grid.tileHeight / (float)grid.tileWidth;
 		Vector3 startPos = new Vector3(this.x, 0.4f + this.y * ratio, 0);
 		Vector3 endPos = new Vector3(x, 0.4f + y * ratio, 0);
+
+
 		
 		float t = 0f;
 		while (t <= 1f) {
@@ -36,6 +44,8 @@ public class Player : Entity {
 			transform.localPosition = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
 			img.sortingOrder = grid.height - y + 1;
 
+			Vector3 dir = (endPos - startPos).normalized;
+			HighlightTileAtPos(transform.localPosition - dir);
 			PickupCollectableAtPos(transform.localPosition);
 			yield return null;
 		}
@@ -45,6 +55,26 @@ public class Player : Entity {
 		transform.localPosition = endPos;
 
 		EndMove();
+	}
+
+
+	private void HighlightTileAtPos (Vector3 pos) {
+		if (pos.x < 0 || pos.y < 0 || pos.x > grid.width - 1 || pos.y > grid.height - 1) {
+			return;
+		}
+
+		Tile tile = grid.GetTile(pos);
+		if (tile == null) { return; }
+
+		x = tile.x;
+		y = tile.y;
+		if (x == lastX && y == lastY) { return; }
+		lastX = x;
+		lastY = y;
+
+		if (tile is TileGround) {
+			tile.UpdateBrokenState();
+		}
 	}
 
 
@@ -58,4 +88,6 @@ public class Player : Entity {
 			}
 		}
 	}
+
+	
 }

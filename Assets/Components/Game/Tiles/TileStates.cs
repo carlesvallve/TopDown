@@ -1,4 +1,4 @@
 ﻿public enum TileStates {
 	NORMAL = 0,
-	BREAKING = 1
+	BROKEN = 1
 }
