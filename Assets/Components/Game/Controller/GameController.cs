@@ -95,6 +95,11 @@ public class GameController : MonoBehaviour {
 	}
 
 
+	public void GameLose () {
+		Application.LoadLevel("Game");
+	}
+
+
 	public bool IsPaused () {
 		return paused;
 	}

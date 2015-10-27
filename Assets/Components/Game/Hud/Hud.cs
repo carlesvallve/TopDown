@@ -41,12 +41,12 @@ public class Hud : MonoBehaviour {
 
 	public void SelectGameTool (GameTools tool) {	
 		foreach(KeyValuePair<GameTools,Button> btn in buttons) {
-			btn.Value.gameObject.GetComponent<Image>().color = Color.white;
+			btn.Value.gameObject.GetComponent<Image>().color = new Color(0, 0, 0, 0.4f);
 		}
 
 		if (tool != GameTools.NONE) {
 			Button button = buttons[tool];
-			button.gameObject.GetComponent<Image>().color = Color.red;
+			button.gameObject.GetComponent<Image>().color = new Color(0, 0, 0, 0.65f);
 		}
 	}
 
