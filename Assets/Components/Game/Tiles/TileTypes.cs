@@ -1,5 +1,5 @@
 ﻿public enum TileTypes {
-	NONE = 0,
-	WATER = 1,
-	GROUND = 2,
+	WATER = 0,
+	GROUND = 1,
+	SOLID = 2
 }

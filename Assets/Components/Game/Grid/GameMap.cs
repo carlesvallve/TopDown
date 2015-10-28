@@ -180,8 +180,8 @@ public class GameMap : MonoBehaviour {
 			if (game.tool == GameTools.TILE) {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 				if (hit.transform !=null && hit.transform.tag == "Tile") {
-					Tile tile = hit.transform.GetComponent<Tile>();
-					newTileType = tile.type == TileTypes.WATER ? TileTypes.GROUND : TileTypes.WATER;
+					//Tile tile = hit.transform.GetComponent<Tile>();
+					newTileType = hud.selectedTileType; //tile.type == TileTypes.WATER ? TileTypes.GROUND : TileTypes.WATER;
 				}
 			}
 		}

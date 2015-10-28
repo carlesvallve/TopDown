@@ -6,10 +6,14 @@ using System.Collections.Generic;
 
 public class Hud : MonoBehaviour {
 
+	private GameGrid grid;
+
 	public Transform container;
 	public Transform menuContainer;
 	public Transform infoContainer;
 	public Transform popupsContainer;
+
+	public Transform menuVertical;
 
 	public HudPrefabs prefabs;
 
@@ -17,11 +21,19 @@ public class Hud : MonoBehaviour {
 	private GameObject popupWin;
 	private Text movesTxt;
 
+	public TileTypes selectedTileType { get; private set; }
+	private GameTools selectedTool;
 
-	public void Init () {
+
+	public void Init (GameGrid grid) {
+		this.grid = grid;
+
 		InitPopups();
 		InitButtons();
 		InitMoves();
+
+		menuVertical.gameObject.SetActive(false);
+		selectedTileType = TileTypes.WATER;
 	}
 
 
@@ -39,15 +51,25 @@ public class Hud : MonoBehaviour {
 	}
 
 
-	public void SelectGameTool (GameTools tool) {	
+	public void SelectGameTool (GameTools tool) {
+		if (tool == GameTools.NONE) {
+			return;
+		}	
+
 		foreach(KeyValuePair<GameTools,Button> btn in buttons) {
 			btn.Value.gameObject.GetComponent<Image>().color = new Color(0, 0, 0, 0.4f);
 		}
 
-		if (tool != GameTools.NONE) {
-			Button button = buttons[tool];
-			button.gameObject.GetComponent<Image>().color = new Color(0, 0, 0, 0.65f);
+		Button button = buttons[tool];
+		button.gameObject.GetComponent<Image>().color = new Color(0, 0, 0, 0.65f);
+		
+		if (tool == GameTools.TILE && tool == selectedTool) {
+			DisplayTileTypeMenu();
+		} else {
+			menuVertical.gameObject.SetActive(false);
 		}
+
+		selectedTool = tool;
 	}
 
 
@@ -57,6 +79,50 @@ public class Hud : MonoBehaviour {
 
 		float alpha = value ? 1 : 0.5f;
 		button.transform.Find("Image").GetComponent<Image>().color = new Color(1, 1, 1, alpha);
+	}
+
+
+
+	private void DisplayTileTypeMenu () {
+		if (menuVertical.gameObject.activeSelf) {
+			menuVertical.gameObject.SetActive(false);
+			return;
+		}
+
+		Transform container = menuVertical.Find("Container");
+
+		for (int i = 0; i < container.childCount; i++) {
+			Destroy(container.GetChild(i).gameObject);
+		}
+
+		int max = System.Enum.GetValues(typeof(TileTypes)).Length;
+
+		for (int i = 0; i < max; i++) {
+			// create button prefab
+			GameObject obj = (GameObject)Instantiate(prefabs.buttonPrefab);
+			obj.transform.SetParent(container, false);
+			obj.name = "Button";
+			obj.transform.localPosition = new Vector3(0, -i * 152, 0);
+
+			// assign button image
+			Image image = obj.transform.Find("Image").GetComponent<Image>();
+			image.sprite = grid.tiles[(TileTypes)i].transform.Find("Sprite").GetComponent<SpriteRenderer>().sprite;
+
+			// assign button handler
+			int num = i;
+			Button button = obj.GetComponent<Button>();
+			button.onClick.AddListener(delegate {
+				// select tile type
+				selectedTileType = (TileTypes)num;
+				buttons[GameTools.TILE].transform.Find("Image").GetComponent<Image>().sprite = image.sprite;
+				menuVertical.gameObject.SetActive(false); 
+			});
+		}
+
+		RectTransform rect = container.GetComponent<RectTransform>();
+		rect.sizeDelta = new Vector2(rect.sizeDelta.x, max * 150);
+
+		menuVertical.gameObject.SetActive(true);
 	}
 
 

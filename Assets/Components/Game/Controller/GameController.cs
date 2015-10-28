@@ -27,11 +27,13 @@ public class GameController : MonoBehaviour {
 
 	
 	public void Init () {
-		hud = GetComponent<Hud>();
-		hud.Init();
+		
 
 		grid = GetComponent<GameGrid>();
 		grid.Init(this);
+
+		hud = GetComponent<Hud>();
+		hud.Init(grid);
 
 		map = GetComponent<GameMap>();
 		map.Init(this, grid, hud);
