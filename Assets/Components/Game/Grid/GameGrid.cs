@@ -22,13 +22,21 @@ public class GameGrid : MonoBehaviour {
 	public TilePrefabs[] tilePrefabs;
 	public Dictionary<TileTypes, GameObject> tiles = new Dictionary<TileTypes, GameObject>();
 
+	public ObstaclePrefabs[] obstaclePrefabs;
+	public Dictionary<ObstacleTypes, GameObject> obstacles = new Dictionary<ObstacleTypes, GameObject>();
+
 
 	public void Init (GameController game) {
 		this.game = game;
 
 		// create tiles dictionary: tile prefabs will be accessible by type key
-		for (int n = 0; n < tilePrefabs.Length; n++) {
-			tiles.Add(tilePrefabs[n].type, tilePrefabs[n].prefab);
+		for (int i = 0; i < tilePrefabs.Length; i++) {
+			tiles.Add(tilePrefabs[i].type, tilePrefabs[i].prefab);
+		}
+
+		// create obstacles dictionary: obstacle prefabs will be accessible by type key
+		for (int i = 0; i < obstaclePrefabs.Length; i++) {
+			obstacles.Add(obstaclePrefabs[i].type, obstaclePrefabs[i].prefab);
 		}
 
 		InitializeGrid();

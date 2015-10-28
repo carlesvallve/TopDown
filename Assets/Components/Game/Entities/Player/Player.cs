@@ -8,19 +8,9 @@ public class Player : Entity {
 	public delegate void PickupCollectableHandler(Collectable collectable);
 	public event PickupCollectableHandler OnPickupCollectable;
 
-
-	public override void Init (GameGrid grid, int x, int y) {
-		base.Init(grid, x, y);
-	}
-
-
-	public override void LocateAtCoords (int x, int y) {
-		base.LocateAtCoords(x, y);
-		img.sortingOrder = grid.height - y + 1;
-	}
-
 	private int lastX = -1;
 	private int lastY = -1;
+
 
 	public override IEnumerator MoveToCoords(int x, int y, float duration) {
 		if (moving) { yield break; }
@@ -36,13 +26,11 @@ public class Player : Entity {
 		Vector3 startPos = new Vector3(this.x, 0.4f + this.y * ratio, 0);
 		Vector3 endPos = new Vector3(x, 0.4f + y * ratio, 0);
 
-
-		
 		float t = 0f;
 		while (t <= 1f) {
 			t += Time.deltaTime / duration;
 			transform.localPosition = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
-			img.sortingOrder = grid.height - y + 1;
+			img.sortingOrder = grid.height - y;
 
 			Vector3 dir = (endPos - startPos).normalized;
 			HighlightTileAtPos(transform.localPosition - dir);

@@ -8,21 +8,16 @@ public class Hud : MonoBehaviour {
 
 	private GameGrid grid;
 
-	public Transform container;
-	public Transform menuContainer;
-	public Transform infoContainer;
-	public Transform popupsContainer;
-
-	public Transform menuVertical;
-
+	public HudContainers containers;
 	public HudPrefabs prefabs;
 
 	private Dictionary<GameTools, Button> buttons = new Dictionary<GameTools, Button>();
 	private GameObject popupWin;
 	private Text movesTxt;
 
-	public TileTypes selectedTileType { get; private set; }
 	private GameTools selectedTool;
+	public TileTypes selectedTileType { get; private set; }
+	public ObstacleTypes selectedObstacleType { get; private set; }
 
 
 	public void Init (GameGrid grid) {
@@ -32,7 +27,7 @@ public class Hud : MonoBehaviour {
 		InitButtons();
 		InitMoves();
 
-		menuVertical.gameObject.SetActive(false);
+		containers.menuVertical.gameObject.SetActive(false);
 		selectedTileType = TileTypes.WATER;
 	}
 
@@ -42,12 +37,12 @@ public class Hud : MonoBehaviour {
 	// ==========================================
 
 	private void InitButtons () {
-		buttons[GameTools.TILE] = menuContainer.Find("ButtonTile").GetComponent<Button>();
-		buttons[GameTools.OBSTACLE] = menuContainer.Find("ButtonObstacle").GetComponent<Button>();
-		buttons[GameTools.ITEM] = menuContainer.Find("ButtonItem").GetComponent<Button>();
-		buttons[GameTools.STAR] = menuContainer.Find("ButtonStar").GetComponent<Button>();
-		buttons[GameTools.PLAYER] = menuContainer.Find("ButtonPlayer").GetComponent<Button>();
-		buttons[GameTools.PLAY] = menuContainer.Find("ButtonPlay").GetComponent<Button>();
+		buttons[GameTools.TILE] = containers.menu.Find("ButtonTile").GetComponent<Button>();
+		buttons[GameTools.OBSTACLE] = containers.menu.Find("ButtonObstacle").GetComponent<Button>();
+		buttons[GameTools.ITEM] = containers.menu.Find("ButtonItem").GetComponent<Button>();
+		buttons[GameTools.STAR] = containers.menu.Find("ButtonStar").GetComponent<Button>();
+		buttons[GameTools.PLAYER] = containers.menu.Find("ButtonPlayer").GetComponent<Button>();
+		buttons[GameTools.PLAY] = containers.menu.Find("ButtonPlay").GetComponent<Button>();
 	}
 
 
@@ -56,17 +51,24 @@ public class Hud : MonoBehaviour {
 			return;
 		}	
 
+		if (containers.menuVertical.gameObject.activeSelf && tool == selectedTool) {
+			HideVerticalMenu();
+			return;
+		}
+
 		foreach(KeyValuePair<GameTools,Button> btn in buttons) {
 			btn.Value.gameObject.GetComponent<Image>().color = new Color(0, 0, 0, 0.4f);
 		}
 
 		Button button = buttons[tool];
 		button.gameObject.GetComponent<Image>().color = new Color(0, 0, 0, 0.65f);
-		
-		if (tool == GameTools.TILE && tool == selectedTool) {
-			DisplayTileTypeMenu();
+
+		if (tool == GameTools.TILE) {
+			ShowVerticalMenu<TileTypes>(grid.tiles, buttons[tool]);
+		} else if (tool == GameTools.OBSTACLE) {
+			ShowVerticalMenu<ObstacleTypes>(grid.obstacles, buttons[tool]);
 		} else {
-			menuVertical.gameObject.SetActive(false);
+			HideVerticalMenu();
 		}
 
 		selectedTool = tool;
@@ -82,47 +84,70 @@ public class Hud : MonoBehaviour {
 	}
 
 
+	// ==========================================
+	// Vertical Menu
+	// ==========================================
 
-	private void DisplayTileTypeMenu () {
-		if (menuVertical.gameObject.activeSelf) {
-			menuVertical.gameObject.SetActive(false);
-			return;
-		}
-
-		Transform container = menuVertical.Find("Container");
+	private void ShowVerticalMenu<T>(Dictionary<T, GameObject> dict, Button button) {
+		Transform container = containers.menuVertical.Find("Container");
 
 		for (int i = 0; i < container.childCount; i++) {
 			Destroy(container.GetChild(i).gameObject);
 		}
 
-		int max = System.Enum.GetValues(typeof(TileTypes)).Length;
+		int max = dict.Count;
 
 		for (int i = 0; i < max; i++) {
+			T type = (T)(object)i;
+
 			// create button prefab
 			GameObject obj = (GameObject)Instantiate(prefabs.buttonPrefab);
 			obj.transform.SetParent(container, false);
 			obj.name = "Button";
 			obj.transform.localPosition = new Vector3(0, -i * 152, 0);
 
-			// assign button image
+			// set button image
 			Image image = obj.transform.Find("Image").GetComponent<Image>();
-			image.sprite = grid.tiles[(TileTypes)i].transform.Find("Sprite").GetComponent<SpriteRenderer>().sprite;
+			image.sprite = dict[type].transform.Find("Sprite").GetComponent<SpriteRenderer>().sprite;
 
-			// assign button handler
-			int num = i;
-			Button button = obj.GetComponent<Button>();
-			button.onClick.AddListener(delegate {
-				// select tile type
-				selectedTileType = (TileTypes)num;
-				buttons[GameTools.TILE].transform.Find("Image").GetComponent<Image>().sprite = image.sprite;
-				menuVertical.gameObject.SetActive(false); 
+			// set button handler
+			Button menuButton = obj.GetComponent<Button>();
+			menuButton.onClick.AddListener(delegate {
+				SelectType<T>(type);
+				button.transform.Find("Image").GetComponent<Image>().sprite = image.sprite;
+				HideVerticalMenu();
 			});
 		}
+
+
+		containers.menuVertical.localPosition = new Vector3(
+			button.transform.localPosition.x, 
+			containers.menuVertical.localPosition.y, 
+			0
+		);
 
 		RectTransform rect = container.GetComponent<RectTransform>();
 		rect.sizeDelta = new Vector2(rect.sizeDelta.x, max * 150);
 
-		menuVertical.gameObject.SetActive(true);
+		containers.menuVertical.gameObject.SetActive(true);
+	}
+
+
+	public void HideVerticalMenu() {
+		containers.menuVertical.gameObject.SetActive(false);
+	}
+
+
+	private void SelectType<T>(T type) {
+		if (type is TileTypes) {
+			selectedTileType = (TileTypes)(object)type;
+			return; 
+		}
+
+		if (type is ObstacleTypes) { 
+			selectedObstacleType = (ObstacleTypes)(object)type;
+			return; 
+		}
 	}
 
 
@@ -131,7 +156,7 @@ public class Hud : MonoBehaviour {
 	// ==========================================
 
 	private void InitMoves () {
-		movesTxt = infoContainer.Find("Moves").GetComponent<Text>();
+		movesTxt = containers.info.Find("Moves").GetComponent<Text>();
 	}
 
 	public void UpdateMoves (int moves) {
@@ -155,7 +180,7 @@ public class Hud : MonoBehaviour {
 			prefab = prefabs.starPrefab;
 		}
 
-		Transform parent = infoContainer.Find(name + "s");
+		Transform parent = containers.info.Find(name + "s");
 		GameObject obj = (GameObject)Instantiate(prefab);
 		obj.transform.SetParent(parent, false);
 		obj.name = name;
@@ -170,7 +195,7 @@ public class Hud : MonoBehaviour {
 	// ==========================================
 
 	private void InitPopups () {
-		popupWin = popupsContainer.Find("PopupWin").gameObject;
+		popupWin = containers.popups.Find("PopupWin").gameObject;
 		popupWin.SetActive(false);
 	}
 

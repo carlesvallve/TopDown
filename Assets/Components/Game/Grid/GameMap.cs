@@ -70,8 +70,6 @@ public class GameMap : MonoBehaviour {
 		
 		entity.Select();
 		selectedEntity = entity;
-
-		//SelectGameTool(GameTools.NONE);
 	}
 
 
@@ -99,7 +97,8 @@ public class GameMap : MonoBehaviour {
 	private Obstacle CreateObstacle (int x, int y) {
 		Transform parent = grid.container.Find("Obstacles");
 
-		GameObject obj = GameObject.Instantiate(game.prefabs.obstaclePrefab);
+		ObstacleTypes type = hud.selectedObstacleType;
+		GameObject obj = GameObject.Instantiate(grid.obstacles[type]);
 		obj.transform.SetParent(parent, false);
 		obj.name = "Obstacle";
 		Obstacle obstacle = obj.GetComponent<Obstacle>();
@@ -181,9 +180,12 @@ public class GameMap : MonoBehaviour {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 				if (hit.transform !=null && hit.transform.tag == "Tile") {
 					//Tile tile = hit.transform.GetComponent<Tile>();
-					newTileType = hud.selectedTileType; //tile.type == TileTypes.WATER ? TileTypes.GROUND : TileTypes.WATER;
+					//newTileType = tile.type == TileTypes.WATER ? TileTypes.GROUND : TileTypes.WATER;
+					newTileType = hud.selectedTileType; 
 				}
 			}
+
+			hud.HideVerticalMenu();
 		}
 
 		if (Input.GetMouseButtonUp(0)) {
@@ -234,7 +236,6 @@ public class GameMap : MonoBehaviour {
 				return;
 			}
 		}
-
 
 		// execute different acions depending on selected game tool
 		switch(game.tool) {
