@@ -22,6 +22,9 @@ public class Player : Entity {
 		grid.SetEntity(this.x, this.y, null);
 		moving = true;
 
+		Tile startingTile = grid.GetTile(transform.localPosition);
+		Tile endingTile = grid.GetTile(x, y);
+
 		float ratio = grid.tileHeight / (float)grid.tileWidth;
 		Vector3 startPos = new Vector3(this.x, 0.4f + this.y * ratio, 0);
 		Vector3 endPos = new Vector3(x, 0.4f + y * ratio, 0);
@@ -32,9 +35,18 @@ public class Player : Entity {
 			transform.localPosition = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
 			img.sortingOrder = grid.height - y;
 
-			Vector3 dir = (endPos - startPos).normalized;
-			HighlightTileAtPos(transform.localPosition - dir);
+			// highlight tiles
+			Tile currentTile = grid.GetTile(transform.localPosition);
+			if (currentTile != endingTile) { 
+				Vector3 dir = (endPos - startPos).normalized * 0.5f;
+				Vector3 pos = transform.localPosition - dir;
+				if (startingTile == currentTile) { pos = transform.localPosition; }
+				HighlightTileAtPos(pos);
+			}
+
+			// pick collectables
 			PickupCollectableAtPos(transform.localPosition);
+			
 			yield return null;
 		}
 

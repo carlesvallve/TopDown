@@ -26,9 +26,6 @@ public class Hud : MonoBehaviour {
 		InitPopups();
 		InitButtons();
 		InitMoves();
-
-		containers.menuVertical.gameObject.SetActive(false);
-		selectedTileType = TileTypes.WATER;
 	}
 
 
@@ -43,6 +40,9 @@ public class Hud : MonoBehaviour {
 		buttons[GameTools.STAR] = containers.menu.Find("ButtonStar").GetComponent<Button>();
 		buttons[GameTools.PLAYER] = containers.menu.Find("ButtonPlayer").GetComponent<Button>();
 		buttons[GameTools.PLAY] = containers.menu.Find("ButtonPlay").GetComponent<Button>();
+
+		SelectTypeOnButton<TileTypes>(buttons[GameTools.TILE], TileTypes.GROUND, grid.tiles);
+		SelectTypeOnButton<ObstacleTypes>(buttons[GameTools.OBSTACLE], ObstacleTypes.BUSH, grid.obstacles);
 	}
 
 
@@ -92,7 +92,7 @@ public class Hud : MonoBehaviour {
 	// Vertical Menu
 	// ==========================================
 
-	private void ShowVerticalMenu<T>(Dictionary<T, GameObject> dict, Button button) {
+	private void ShowVerticalMenu<T>(Dictionary<T, GameObject> dict, Button button, bool reversed = false) {
 		Transform container = containers.menuVertical.Find("Container");
 
 		for (int i = 0; i < container.childCount; i++) {
@@ -102,7 +102,7 @@ public class Hud : MonoBehaviour {
 		int max = dict.Count;
 
 		for (int i = 0; i < max; i++) {
-			T type = (T)(object)i;
+			T type = (T)(object)(reversed ? max - 1 - i : i);
 
 			// create button prefab
 			GameObject obj = (GameObject)Instantiate(prefabs.buttonPrefab);
@@ -155,6 +155,14 @@ public class Hud : MonoBehaviour {
 	}
 
 
+	private void SelectTypeOnButton<T>(Button button, T type, Dictionary<T, GameObject> dict) {
+		SelectType<T>(type);
+		Image image = button.transform.Find("Image").GetComponent<Image>();
+		image.sprite = dict[type].transform.Find("Sprite").GetComponent<SpriteRenderer>().sprite;
+		HideVerticalMenu();
+	}
+
+
 	// ==========================================
 	// Player moves
 	// ==========================================
@@ -166,6 +174,7 @@ public class Hud : MonoBehaviour {
 	public void UpdateMoves (int moves) {
 		movesTxt.text = "Moves: " + moves;
 	}
+
 
 	// ==========================================
 	// Collectables (Items & Stars)

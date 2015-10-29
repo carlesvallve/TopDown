@@ -124,17 +124,6 @@ public class GameMap : MonoBehaviour {
 		
 		if (Input.GetMouseButtonDown(0)) {
 			isMouseDown = true;
-
-			// define new tile type
-			if (game.tool == GameTools.TILE) {
-				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-				if (hit.transform !=null && hit.transform.tag == "Tile") {
-					//Tile tile = hit.transform.GetComponent<Tile>();
-					//newTileType = tile.type == TileTypes.WATER ? TileTypes.GROUND : TileTypes.WATER;
-					newTileType = hud.selectedTileType; 
-				}
-			}
-
 			hud.HideVerticalMenu();
 		}
 
@@ -191,7 +180,7 @@ public class GameMap : MonoBehaviour {
 		// execute different acions depending on selected game tool
 		switch(game.tool) {
 		case GameTools.TILE:
-			grid.ChangeTile(tile, newTileType);
+			grid.ChangeTile(tile, hud.selectedTileType);
 			break;
 		case GameTools.OBSTACLE:
 			if (tile.IsWalkable()) { grid.CreateObstacle(tile.x, tile.y, hud.selectedObstacleType); }
