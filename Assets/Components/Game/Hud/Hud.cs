@@ -32,17 +32,6 @@ public class Hud : MonoBehaviour {
 	}
 
 
-	public void Msg (string msg) {
-		movesTxt.text = msg;
-		StartCoroutine(EraseMsg());
-	}
-
-	private IEnumerator EraseMsg() {
-		yield return new WaitForSeconds(1f);
-		movesTxt.text = "";
-	}
-
-
 	// ==========================================
 	// Buttons
 	// ==========================================
@@ -238,5 +227,20 @@ public class Hud : MonoBehaviour {
 		if (!value) {
 			popupWin.SetActive(value);
 		}
+	}
+
+
+	// ==========================================
+	// Debug
+	// ==========================================
+
+	public void Msg (string msg) {
+		movesTxt.text = msg;
+		StartCoroutine(EraseMsg());
+	}
+
+	private IEnumerator EraseMsg() {
+		yield return new WaitForSeconds(1f);
+		movesTxt.text = "";
 	}
 }

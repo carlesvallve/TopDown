@@ -64,6 +64,10 @@ public class GameGrid : MonoBehaviour {
 	}
 
 
+	// ===============================================================
+	// Tiles
+	// ===============================================================
+
 	private Tile CreateTile (TileTypes type, int x, int y) {
 		Transform parent = container.Find("Tiles");
 
@@ -121,6 +125,59 @@ public class GameGrid : MonoBehaviour {
 		int y = Mathf.RoundToInt(- 0.4f + pos.y / ratio);
 
 		return layers.Get<Entity>(y, x);
+	}
+
+
+	// ===============================================================
+	// Entities
+	// ===============================================================
+
+	public Obstacle CreateObstacle (int x, int y, ObstacleTypes type) {
+		Transform parent = this.container.Find("Obstacles");
+
+		GameObject obj = GameObject.Instantiate(this.obstacles[type]);
+		obj.transform.SetParent(parent, false);
+		obj.name = "Obstacle";
+		Obstacle obstacle = obj.GetComponent<Obstacle>();
+		obstacle.Init(this, x, y);
+		
+		return obstacle;
+	}
+
+	public Item CreateItem (int x, int y) {
+		Transform parent = this.container.Find("Items");
+
+		GameObject obj = GameObject.Instantiate(game.prefabs.itemPrefab);
+		obj.transform.SetParent(parent, false);
+		obj.name = "Item";
+		Item item = obj.GetComponent<Item>();
+		item.Init(this, x, y);
+
+		return item;
+	}
+
+	public Star CreateStar (int x, int y) {
+		Transform parent = this.container.Find("Stars").transform;
+
+		GameObject obj = GameObject.Instantiate(game.prefabs.starPrefab);
+		obj.transform.SetParent(parent, false);
+		obj.name = "Star";
+		Star star = obj.GetComponent<Star>();
+		star.Init(this, x, y);
+
+		return star;
+	}
+
+	public Player CreatePlayer (int x, int y) {
+		Transform parent = this.container;
+
+		GameObject obj = GameObject.Instantiate(game.prefabs.playerPrefab);
+		obj.transform.SetParent(parent, false);
+		obj.name = "Player";
+		Player player = obj.GetComponent<Player>();
+		player.Init(this, x, y);
+
+		return player;
 	}
 
 

@@ -94,56 +94,6 @@ public class GameMap : MonoBehaviour {
 	}
 
 
-	private Obstacle CreateObstacle (int x, int y) {
-		Transform parent = grid.container.Find("Obstacles");
-
-		ObstacleTypes type = hud.selectedObstacleType;
-		GameObject obj = GameObject.Instantiate(grid.obstacles[type]);
-		obj.transform.SetParent(parent, false);
-		obj.name = "Obstacle";
-		Obstacle obstacle = obj.GetComponent<Obstacle>();
-		obstacle.Init(grid, x, y);
-		return obstacle;
-	}
-
-	private Item CreateItem (int x, int y) {
-		Transform parent = grid.container.Find("Items");
-
-		GameObject obj = GameObject.Instantiate(game.prefabs.itemPrefab);
-		obj.transform.SetParent(parent, false);
-		obj.name = "Item";
-		Item item = obj.GetComponent<Item>();
-		item.Init(grid, x, y);
-		return item;
-	}
-
-	private Star CreateStar (int x, int y) {
-		Transform parent = grid.container.Find("Stars").transform;
-
-		GameObject obj = GameObject.Instantiate(game.prefabs.starPrefab);
-		obj.transform.SetParent(parent, false);
-		obj.name = "Star";
-		Star star = obj.GetComponent<Star>();
-		star.Init(grid, x, y);
-		return star;
-	}
-
-	private Player CreatePlayer (int x, int y) {
-		Transform parent = grid.container;
-
-		GameObject obj = GameObject.Instantiate(game.prefabs.playerPrefab);
-		obj.transform.SetParent(parent, false);
-		obj.name = "Player";
-		Player player = obj.GetComponent<Player>();
-		player.Init(grid, x, y);
-
-		hud.EnableGameTool(GameTools.PLAYER, false);
-		SelectGameTool(GameTools.NONE);
-
-		return player;
-	}
-
-
 	// ===============================================================
 	// User Interaction
 	// ===============================================================
@@ -173,7 +123,6 @@ public class GameMap : MonoBehaviour {
 	public void OnMouseInteraction() {
 		
 		if (Input.GetMouseButtonDown(0)) {
-			hud.Msg("mouse interacting with map...");
 			isMouseDown = true;
 
 			// define new tile type
@@ -245,18 +194,20 @@ public class GameMap : MonoBehaviour {
 			grid.ChangeTile(tile, newTileType);
 			break;
 		case GameTools.OBSTACLE:
-			if (tile.IsWalkable()) { CreateObstacle(tile.x, tile.y); }
+			if (tile.IsWalkable()) { grid.CreateObstacle(tile.x, tile.y, hud.selectedObstacleType); }
 			break;
 		case GameTools.ITEM:
-			if (tile.IsWalkable()) { CreateItem(tile.x, tile.y); }
+			if (tile.IsWalkable()) { grid.CreateItem(tile.x, tile.y); }
 			break;
 		case GameTools.STAR:
-			if (tile.IsWalkable()) { CreateStar(tile.x, tile.y); }
+			if (tile.IsWalkable()) { grid.CreateStar(tile.x, tile.y); }
 			break;
 		case GameTools.PLAYER:
 			if (tile.IsWalkable()) { 
-				game.player = CreatePlayer(tile.x, tile.y); 
+				game.player = grid.CreatePlayer(tile.x, tile.y); 
 				game.SetPlayerListeners();
+				hud.EnableGameTool(GameTools.PLAYER, false);
+				SelectGameTool(GameTools.NONE);
 			}
 			break;
 		}
