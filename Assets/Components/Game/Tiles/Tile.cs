@@ -68,7 +68,7 @@ public class Tile : MonoBehaviour {
 	}
 
 
-	public void UpdateBrokenState () {
+	public virtual void UpdateBrokenState () {
 		stateNum += 1;
 
 		if (stateNum > System.Enum.GetValues(typeof(TileStates)).Length - 1) {
