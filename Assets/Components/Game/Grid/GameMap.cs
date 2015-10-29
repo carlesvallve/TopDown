@@ -160,19 +160,20 @@ public class GameMap : MonoBehaviour {
 			return;
 		}
 
+		// escape if mouse is over any UI
+		if (EventSystem.current.IsPointerOverGameObject(0) || 
+			EventSystem.current.IsPointerOverGameObject(-1)) {
+			return;
+		}
+
 		OnMouseInteraction();
 	}
 
 
 	public void OnMouseInteraction() {
-		if (EventSystem.current.IsPointerOverGameObject()) {
-			if (EventSystem.current.currentSelectedGameObject != null &&
-				EventSystem.current.currentSelectedGameObject.GetComponent<Button>()) {
-				return;
-			}	
-		}
-
+		
 		if (Input.GetMouseButtonDown(0)) {
+			hud.Msg("mouse interacting with map...");
 			isMouseDown = true;
 
 			// define new tile type
@@ -224,6 +225,7 @@ public class GameMap : MonoBehaviour {
 
 
 	private void ClickOnTile (Tile tile) {
+
 		// escape if mouse isn't on a different tile
 		if (tile.x == lastX && tile.y == lastY) { return; }
 		lastX = tile.x;

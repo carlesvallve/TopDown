@@ -137,18 +137,18 @@ public class GameGrid : MonoBehaviour {
 			return;
 		}
 
+		// escape if mouse is over any UI
+		if (EventSystem.current.IsPointerOverGameObject(0) || 
+			EventSystem.current.IsPointerOverGameObject(-1)) {
+			return;
+		}
+
 		OnMouseInteraction ();
 	}
 
 
 	public void OnMouseInteraction () {
-		if (EventSystem.current.IsPointerOverGameObject()) {
-			if (EventSystem.current.currentSelectedGameObject != null &&
-				EventSystem.current.currentSelectedGameObject.GetComponent<Button>()) {
-				return;
-			}	
-		}
-
+		
 		if (Input.GetMouseButtonDown(0)) {
 			swipeStart = Input.mousePosition;
 			isMouseDown = true;

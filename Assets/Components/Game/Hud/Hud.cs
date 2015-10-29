@@ -32,6 +32,17 @@ public class Hud : MonoBehaviour {
 	}
 
 
+	public void Msg (string msg) {
+		movesTxt.text = msg;
+		StartCoroutine(EraseMsg());
+	}
+
+	private IEnumerator EraseMsg() {
+		yield return new WaitForSeconds(1f);
+		movesTxt.text = "";
+	}
+
+
 	// ==========================================
 	// Buttons
 	// ==========================================
@@ -63,10 +74,14 @@ public class Hud : MonoBehaviour {
 		Button button = buttons[tool];
 		button.gameObject.GetComponent<Image>().color = new Color(0, 0, 0, 0.65f);
 
-		if (tool == GameTools.TILE) {
-			ShowVerticalMenu<TileTypes>(grid.tiles, buttons[tool]);
-		} else if (tool == GameTools.OBSTACLE) {
-			ShowVerticalMenu<ObstacleTypes>(grid.obstacles, buttons[tool]);
+		if (tool == selectedTool || containers.menuVertical.gameObject.activeSelf) { 
+			if (tool == GameTools.TILE) {
+				ShowVerticalMenu<TileTypes>(grid.tiles, buttons[tool]);
+			} else if (tool == GameTools.OBSTACLE) {
+				ShowVerticalMenu<ObstacleTypes>(grid.obstacles, buttons[tool]);
+			} else {
+				HideVerticalMenu();
+			}
 		} else {
 			HideVerticalMenu();
 		}
