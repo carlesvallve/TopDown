@@ -56,8 +56,8 @@ public class GameController : MonoBehaviour {
 		player.OnPickupCollectable += (Collectable collectable) => {
 			collectables.Add(collectable);
 			hud.AddCollectable(collectable);
-			Destroy(collectable.gameObject);
-			
+
+			collectable.Pickup();
 		};
 
 		// end moving
@@ -90,6 +90,7 @@ public class GameController : MonoBehaviour {
 
 		paused = true;
 
+		yield return new WaitForSeconds(0.5f);
 		yield return  StartCoroutine(hud.DisplayPopupWin(true, 0.5f));
 		yield return new WaitForSeconds (2.0f);
 

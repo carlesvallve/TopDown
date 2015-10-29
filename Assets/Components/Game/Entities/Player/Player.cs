@@ -82,9 +82,13 @@ public class Player : Entity {
 		Entity entity = grid.GetEntity(pos);
 		if (entity == null) { return; }
 
+
 		if (entity is Collectable) {
+			Collectable collectable = (Collectable)entity;
+			if (collectable.HasBeenPickedUp()) { return; }
+
 			if (OnPickupCollectable != null) {
-				OnPickupCollectable.Invoke ((Collectable)entity);
+				OnPickupCollectable.Invoke (collectable);
 			}
 		}
 	}
