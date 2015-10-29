@@ -72,8 +72,8 @@ public class Player : Entity {
 		lastX = x;
 		lastY = y;
 
-		if (tile is TileGround) {
-			tile.UpdateBrokenState();
+		if (tile.IsBreakable()) {
+			tile.UpdateState();
 		}
 	}
 

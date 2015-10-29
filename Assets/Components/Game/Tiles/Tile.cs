@@ -5,21 +5,17 @@ using System.Collections.Generic;
 public class Tile : MonoBehaviour {
 
 	public TileStates state;
-	private int stateNum;
-
-	public TileSprites[] tileSprites;
-	public Dictionary<TileStates, Sprite> sprites = new Dictionary<TileStates, Sprite>();
-
+	public bool breakable = false;
 
 	public TileTypes type { get; set; }
 	public int x { get; set; }
 	public int y { get; set; }
 
-	private GameGrid grid;
-	private SpriteRenderer img;
+	protected GameGrid grid;
+	protected SpriteRenderer img;
 
 
-	public void Init (GameGrid grid, TileTypes type, int x, int y) {
+	public virtual void Init (GameGrid grid, TileTypes type, int x, int y) {
 		this.grid = grid;
 		this.type = type;
 		this.x = x;
@@ -29,17 +25,14 @@ public class Tile : MonoBehaviour {
 		float ratio = grid.tileHeight / (float)grid.tileWidth;
 		transform.localPosition = new Vector3(x, y * ratio, 0);
 
-		// create images dictionary: images will be accessible by state key
-		for (int i = 0; i < tileSprites.Length; i++) {
-			sprites.Add(tileSprites[i].state, tileSprites[i].sprite);
-		}
-
 		// set tile image
 		img = transform.Find("Sprite").GetComponent<SpriteRenderer>();
 		img.sortingOrder = grid.height - y;
+	}
 
-		// set tile state
-		SetState(TileStates.NORMAL);
+
+	public bool IsBreakable () {
+		return breakable;
 	}
 
 
@@ -59,24 +52,16 @@ public class Tile : MonoBehaviour {
 	}
 
 
-	public void SetState (TileStates state) {
-		this.state = state;
-
-		if (sprites.Count > 0) {
-			img.sprite = sprites[state];
-		}
-	}
-
-
-	public virtual void UpdateBrokenState () {
-		stateNum += 1;
-
-		if (stateNum > System.Enum.GetValues(typeof(TileStates)).Length - 1) {
-			grid.ChangeTile(this, TileTypes.WATER);
+	public virtual void UpdateState () {
+		if (state == TileStates.NORMAL) {
+			grid.ChangeTile(this, TileTypes.BROKEN);
 			return;
 		}
 
-		SetState((TileStates)stateNum);
+		if (state == TileStates.BROKEN) {
+			grid.ChangeTile(this, TileTypes.WATER);
+			return;
+		}
 	}
 
 }
